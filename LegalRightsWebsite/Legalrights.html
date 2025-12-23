@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Know Your Rights</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<h2 id="title">Know Your Rights</h2>
+<p id="subtitle">Legal help in 10 seconds</p>
+
+<select id="langSelect"onchange="changeLanguage()" style="margin:10px; padding:5px; border-radius:8px;">
+
+  <option value="en">English</option>
+  <option value="hi">Hindi</option>
+  <option value="ta">Tamil</option>
+  <option value="te">Telugu</option>
+  <option value="mr">Marathi</option>
+</select>
+
+<br><br>
+
+<button id="testBtn">Test Button</button>
+
+<p id="output"></p>
+
+<script>
+  // 1. Language data
+  const text = {
+    en: {
+      title: "Know Your Rights",
+      subtitle: "Legal help in 10 seconds",
+      message: "Button works ✅"
+    },
+    hi: {
+      title: "अपने अधिकार जानिए",
+      subtitle: "10 सेकंड में कानूनी सहायता",
+      message: "बटन काम कर रहा है ✅"
+    },
+    ta: {
+      title: "உங்கள் உரிமைகளை அறியுங்கள்",
+      subtitle: "10 விநாடிகளில் சட்ட உதவி",
+      message: "பொத்தான் வேலை செய்கிறது ✅"
+    },
+    te: {
+      title: "మీ హక్కులు తెలుసుకోండి",
+      subtitle: "10 సెకన్లలో న్యాయ సహాయం",
+      message: "బటన్ పనిచేస్తోంది ✅"
+    },
+    mr: {
+      title: "आपले हक्क जाणून घ्या",
+      subtitle: "10 सेकंदात कायदेशीर मदत",
+      message: "बटण काम करत आहे ✅"
+    }
+  };
+
+  // 2. Elements
+  const titleEl = document.getElementById("title");
+  const subtitleEl = document.getElementById("subtitle");
+  const outputEl = document.getElementById("output");
+  const langSelect = document.getElementById("langSelect");
+  const testBtn = document.getElementById("testBtn");
+
+  // 3. Function to update language
+  function updateLanguage() {
+    const lang = langSelect.value;
+    titleEl.innerText = text[lang].title;
+    subtitleEl.innerText = text[lang].subtitle;
+    outputEl.innerText = ""; // reset message
+  }
+
+  // 4. Button action
+  testBtn.addEventListener("click", function() {
+    const lang = langSelect.value;
+    outputEl.innerText = text[lang].message;
+  });
+
+  // 5. Dropdown change event
+  langSelect.addEventListener("change", updateLanguage);
+
+  // 6. Initialize
+  updateLanguage();
+</script>
+
+</body>
+</html>
+

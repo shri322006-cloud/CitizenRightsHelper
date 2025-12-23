@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citizen Rights Helper</title>
+<style>
+body { font-family: Arial,sans-serif; margin:0; padding:0; background:#fdf6f0; color:#333; }
+.container { max-width:700px; margin:30px auto; background:#fff0f5; padding:25px; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
+h2{text-align:center; color:#ff7f50;} p{text-align:center; font-size:1.1em; margin-bottom:15px;}
+select, button { width:100%; padding:12px; margin:8px 0; border-radius:12px; border:none; font-size:1em; cursor:pointer;}
+select { background:#ffe4e1; color:#333; }
+button { background:#ffb6c1; color:#fff; font-weight:bold; transition:0.3s; }
+button:hover{ background:#ff69b4; }
+#output { margin-top:20px; padding:15px; border-radius:12px; background:#ffe4f0; text-align:center; font-weight:bold;}
+#emergencyBtn{background:#ffb347; color:#fff; margin-top:10px;}
+#emergencyBtn:hover{background:#ff7f50;}
+#mapBtn{background:#a0e7e5; color:#333; margin-top:10px;}
+#mapBtn:hover{background:#81d4fa;}
+@media(max-width:600px){.container{margin:15px; padding:20px;} select, button{padding:10px;font-size:0.95em;} #output{font-size:1em;}}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Citizen Rights Helper</h2>
+<p>Access your legal rights in 10 seconds</p>
+
+<button id="knowRightsBtn">📖 Know My Rights</button>
+<button id="bribeBtn">🗺️ Bribe/Harassment Map</button>
+<button id="emergencyBtn">📞 Emergency Call</button>
+
+<div id="rightsSection" style="display:none; margin-top:20px;">
+<h2 id="title">Know Your Rights</h2>
+<p id="subtitle">Legal help in 10 seconds</p>
+<select id="langSelect">
+<option value="en">English</option>
+<option value="hi">हिन्दी</option>
+<option value="ta">தமிழ்</option>
+<option value="te">తెలుగు</option>
+<option value="mr">मराठी</option>
+</select>
+<p>Choose a situation:</p>
+<select id="situationSelect">
+<option value="phone">📱 Phone Check</option>
+<option value="female">👩 Female Arrest</option>
+<option value="traffic">🚦 Traffic Stop</option>
+<option value="fir">🧾 FIR</option>
+<option value="detention">⏳ Detention</option>
+</select>
+<button id="yesBtn">Yes ✅</button>
+<button id="noBtn">No ❌</button>
+<p id="output"></p>
+</div>
+</div>
+
+<script>
+window.addEventListener("DOMContentLoaded", function(){
+    // Elements
+    const knowRightsBtn = document.getElementById("knowRightsBtn");
+    const bribeBtn = document.getElementById("bribeBtn");
+    const emergencyBtn = document.getElementById("emergencyBtn");
+    const rightsSection = document.getElementById("rightsSection");
+
+    const titleEl = document.getElementById("title");
+    const subtitleEl = document.getElementById("subtitle");
+    const outputEl = document.getElementById("output");
+    const langSelect = document.getElementById("langSelect");
+    const situationSelect = document.getElementById("situationSelect");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+
+    // Multilingual rights text
+    let lang = "en";
+    const text = {
+        en: {title:"Know Your Rights", subtitle:"Legal help in 10 seconds", phoneYes:"They need your consent or a warrant.", phoneNo:"You can politely refuse.", femaleYes:"Night arrest is not allowed.", femaleNo:"This applies only to women.", trafficYes:"Only challan. No bribe allowed.", trafficNo:"You may leave.", firYes:"FIR must be registered.", firNo:"Approach senior officer.", detentionYes:"Detention over 24 hours is illegal.", detentionNo:"Rights must be informed."},
+        hi:{title:"अपने अधिकार जानिए", subtitle:"10 सेकंड में कानूनी सहायता", phoneYes:"अनुमति या वारंट जरूरी है।", phoneNo:"आप मना कर सकते हैं।", femaleYes:"रात में गिरफ्तारी अवैध है।", femaleNo:"यह महिलाओं के लिए है।", trafficYes:"सिर्फ चालान। रिश्वत नहीं।", trafficNo:"आप जा सकते हैं।", firYes:"FIR दर्ज करना जरूरी है।", firNo:"वरिष्ठ अधिकारी से संपर्क करें।", detentionYes:"24 घंटे से अधिक हिरासत अवैध है।", detentionNo:"आपके अधिकार बताने होंगे।"},
+        ta:{title:"உங்கள் உரிமைகளை அறியுங்கள்", subtitle:"10 விநாடிகளில் சட்ட உதவி", phoneYes:"அனுமதி அல்லது வாரண்ட் தேவை.", phoneNo:"நீங்கள் மறுக்கலாம்.", femaleYes:"இரவில் கைது செய்ய முடியாது.", femaleNo:"இது பெண்களுக்கு மட்டும்.", trafficYes:"சட்டப்படி அபராதம் மட்டுமே.", trafficNo:"நீங்கள் செல்லலாம்.", firYes:"FIR பதிவு கட்டாயம்.", firNo:"மூத்த அதிகாரியை அணுகவும்.", detentionYes:"24 மணி நேரம் தாண்டியதா என்ற சட்டவிரோதம்.", detentionNo:"உரிமைகள் தெரிவிக்க வேண்டும்."},
+        te:{title:"మీ హక్కులు తెలుసుకోండి", subtitle:"10 సెకన్లలో న్యాయ సహాయం", phoneYes:"అనుమతి లేదా వారెంట్ అవసరం.", phoneNo:"మీరు తిరస్కరించవచ్చు.", femaleYes:"రాత్రి అరెస్ట్ చేయలేరు.", femaleNo:"ఇది మహిళలకు మాత్రమే.", trafficYes:"చలాన్ మాత్రమే. رش్వతించవద్దు.", trafficNo:"మీరు వెళ్లవచ్చు.", firYes:"FIR తప్పనిసరి.", firNo:"సీనియర్ అధికారిని సంప్రదించండి.", detentionYes:"24 గంటల కంటే ఎక్కువ అరెస్ట్ చట్టవిరుద్ధం.", detentionNo:"హక్కులు తెలియజేయాలి."},
+        mr:{title:"आपले हक्क जाणून घ्या", subtitle:"10 सेकंदात कायदेशीर मदत", phoneYes:"परवानगी किंवा वॉरंट आवश्यक.", phoneNo:"आपण नकार देऊ शकता.", femaleYes:"रात्री अटक बेकायदेशीर.", femaleNo:"हे महिलांसाठी आहे.", trafficYes:"चलनच द्यावे. लाच नाही.", trafficNo:"आपण जाऊ शकता.", firYes:"FIR नोंद आवश्यक.", firNo:"वरिष्ठ अधिकाऱ्यांकडे जा.", detentionYes:"24 तासांपेक्षा जास्त हिरासत बेकायदेशीर.", detentionNo:"हक्क सांगणे आवश्यक."}
+    };
+
+    // Functions
+    function updateLanguage(){lang=langSelect.value; titleEl.innerText=text[lang].title; subtitleEl.innerText=text[lang].subtitle; outputEl.innerText="";}
+    function showAnswer(isYes){const situation=situationSelect.value; const key=situation+(isYes?"Yes":"No"); outputEl.innerText=text[lang][key];}
+
+    // Event listeners
+    langSelect.addEventListener("change", updateLanguage);
+    yesBtn.addEventListener("click", ()=>showAnswer(true));
+    noBtn.addEventListener("click", ()=>showAnswer(false));
+
+    knowRightsBtn.addEventListener("click", function(){rightsSection.style.display="block"; window.scrollTo({ top:rightsSection.offsetTop, behavior:'smooth'});});
+    emergencyBtn.addEventListener("click", function(){window.location.href="tel:100";});
+    bribeBtn.addEventListener("click", function(){window.location.href="map.html";});
+
+    // Initialize
+    updateLanguage();
+});
+</script>
+</body>
+</html>
+
+

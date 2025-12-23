@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Legal Rights Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<style>
+body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f6f7fb; }
+#map { height: 100vh; width: 100%; }
+
+/* Popup Form */
+#popupForm {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  display: none;
+  z-index: 1000;
+  width: 90%;
+  max-width: 350px;
+}
+#popupForm h3 { text-align: center; color: #6366f1; margin-bottom: 10px; }
+#popupForm input, #popupForm textarea, #popupForm select, #popupForm button {
+  width: 100%; margin-bottom: 8px; padding: 8px; border-radius: 8px; border:1px solid #ccc;
+}
+#popupForm button { background: #a5b4fc; color:white; border:none; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="popupForm">
+  <h3>📍 Report Incident</h3>
+  <input id="place" placeholder="Location name">
+  <textarea id="details" placeholder="What happened?"></textarea>
+  <select id="type">
+    <option>Bribe</option>
+    <option>Harassment</option>
+  </select>
+  <button onclick="saveReport()">Submit</button>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+let map = L.map('map').setView([20.5937, 78.9629], 5); // Center on India
+
+// OpenStreetMap tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+let clickedLatLng = null;
+
+// Load saved reports from localStorage
+let reports = JSON.parse(localStorage.getItem('reports') || '[]');
+reports.forEach(r => {
+  L.marker([r.lat, r.lng])
+   .addTo(map)
+   .bindPopup(`<b>${r.place}</b><br>${r.details}<br><i>${r.type}</i>`);
+});
+
+// Click map to open popup form
+map.on('click', function(e){
+  clickedLatLng = e.latlng;
+  document.getElementById('popupForm').style.display = 'block';
+});
+
+// Save report function
+function saveReport(){
+  const place = document.getElementById('place').value;
+  const details = document.getElementById('details').value;
+  const type = document.getElementById('type').value;
+
+  if(!place || !details){ alert('Please fill all fields'); return; }
+
+  const report = {
+    lat: clickedLatLng.lat,
+    lng: clickedLatLng.lng,
+    place,
+    details,
+    type
+  };
+
+  reports.push(report);
+  localStorage.setItem('reports', JSON.stringify(reports));
+
+  L.marker([report.lat, report.lng])
+   .addTo(map)
+   .bindPopup(`<b>${report.place}</b><br>${report.details}<br><i>${report.type}</i>`);
+
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('place').value = '';
+  document.getElementById('details').value = '';
+}
+</script>
+
+</body>
+</html>
+
+
+
